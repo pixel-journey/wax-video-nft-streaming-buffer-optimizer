@@ -3,9 +3,31 @@ import { runway } from "./buffer";
 
 describe("buffer runway", () => {
   it("uses whole seconds and marks a short buffer stalled", () => {
-    expect(runway(5_000n, 1_000n, 3)).toEqual({ ok: true, seconds: 5n, stalled: false });
-    expect(runway(3_000n, 1_000n, 3)).toEqual({ ok: true, seconds: 3n, stalled: false });
-    expect(runway(2_000n, 1_000n, 3)).toEqual({ ok: true, seconds: 2n, stalled: true });
+    expect(runway(5_000n, 1_000n, 3)).toEqual({
+      ok: true,
+      seconds: 5n,
+      stalled: false,
+    });
+    expect(runway(3_000n, 1_000n, 3)).toEqual({
+      ok: true,
+      seconds: 3n,
+      stalled: false,
+    });
+    expect(runway(2_000n, 1_000n, 3)).toEqual({
+      ok: true,
+      seconds: 2n,
+      stalled: true,
+    });
     expect(runway(1n, 0n, 1).ok).toBe(false);
+  });
+
+  it("drops the remainder and refuses bad floorSec", () => {
+    expect(runway(1_999n, 1_000n, 1)).toEqual({
+      ok: true,
+      seconds: 1n,
+      stalled: false,
+    });
+    expect(runway(100n, 1_000n, 61).ok).toBe(false);
+    expect(runway(-1n, 1_000n, 1).ok).toBe(false);
   });
 });
