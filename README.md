@@ -1,23 +1,59 @@
-# Whole seconds of buffer
+# wax-video-nft-streaming-buffer-optimizer
 
-**Trust label:** `educational-reference`  
-**Catalog:** `wax-ecosystem-blueprint-catalog` (private index; not this public course)
+> **Trust label:** `educational-reference`  
+> **Status:** Course-format upgrade (2026-11-26)  
+> **Catalog:** `wax-ecosystem-blueprint-catalog` (private index; not this public course)
 
-5000 bytes at 1000 per second is 5. 2000 is stalled under a floor of 3. No video plays. This divides bytes by a rate. It does not race gateways and it does not read a schema `video` field.
+**One-sentence goal:** Teach **whole seconds of buffer** as `bufferedBytes / bytesPerSecond` with an inclusive equal-floor boundary — without shipping a media player.
 
-The earlier README described a live product. This tree does not ship that.
+## Locked scene
+
+Stalled means `seconds < floorSec`. **Equal is not stalled.**
+
+| Call | Result |
+| --- | --- |
+| `runway(5000n, 1000n, 3)` | `{ seconds: 5n, stalled: false }` |
+| `runway(3000n, 1000n, 3)` | `{ seconds: 3n, stalled: false }` |
+| `runway(2000n, 1000n, 3)` | `{ seconds: 2n, stalled: true }` |
+| rate `0` | refused |
+
+Remainder bytes are dropped. 1999 at 1000/s is still 1 second.
+
+```ts
+import { runway } from "./src/buffer";
+runway(3000n, 1000n, 3);
+// { ok: true, seconds: 3n, stalled: false }
+```
 
 ## What is actually in the repo
 
 | Piece | Role |
 | --- | --- |
-| `src/buffer.ts` | The pure rules |
-| `src/buffer.test.ts` | The claims in the verification log |
-| `src/usecases.ts` | HTTP requests, built and not sent |
+| `src/buffer.ts` | Pure runway rules |
+| `src/buffer.test.ts` | Locked claims |
+| `src/usecases.ts` | HTTP shapes built and not sent |
 | `src/Demo.tsx` | Offline page |
+| [EDUCATION.md](EDUCATION.md) | Beginner → Intermediate → Masterclass course |
 
-The course is [EDUCATION.md](EDUCATION.md). `npm test` runs the rules. `npm run dev` opens the page.
+## Quick start
 
-## Queries
+```bash
+npm install
+npm test
+npm run dev
+```
 
-`executed` is false. This repo did not call any host. No transaction is invented.
+## Boundaries
+
+- Not a video player, CDN, or adaptive-bitrate policy
+- Does not read AtomicAssets `video` fields or race gateways
+- Floor is a teaching threshold, not a product UX recommendation
+
+## Related
+
+- [px-token-dust-truncation-visualizer](https://github.com/pixel-journey/px-token-dust-truncation-visualizer) — same floor idea on amounts
+- [wax-reduced-motion-dashboard](https://github.com/pixel-journey/wax-reduced-motion-dashboard) — motion flag teaching
+
+## License
+
+MIT — Pixel Journey
